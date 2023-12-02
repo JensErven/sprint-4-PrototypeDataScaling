@@ -4,6 +4,8 @@ const app = express();
 const cors = require("cors");
 const { createTable } = require("./controllers/dbController");
 const { populateUsers } = require("./scripts/userPopulator");
+const { populatePlants } = require("./scripts/plantPopulator");
+const { createPlantsTable } = require("./controllers/dbPlantsController");
 
 app.use(express.json()); // Add this line to parse JSON bodies
 
@@ -15,7 +17,9 @@ const corsOptions = {
 };
 
 // createTable();
-populateUsers();
+// createPlantsTable();
+// populateUsers();
+// populatePlants();
 
 app.use(cors(corsOptions));
 
