@@ -7,16 +7,17 @@ import {
   faPlaneCircleCheck,
 } from "@fortawesome/free-solid-svg-icons";
 import plants_background from "../assets/plants.jpg";
-import "../styles/welcome.css";
 
 const Welcome = () => {
   return (
     <div className="bg-[#11493e] relative flex items-center flex-col text-left justify-between h-screen">
-      <div>
+      <div className="h-screen">
         {" "}
-        <div class="parent">
-          <img src={plants_background} alt="Your Image" class="image" />
-        </div>
+        <img
+          src={plants_background}
+          alt="Description"
+          className="w-screen  object-cover bg-gradient-to-b  to-blue-[#11493e] h-1/2"
+        />
         <div className="p-4 flex flex-col gap-4">
           <h1 className="">Keep your plants alive</h1>
           <p>
