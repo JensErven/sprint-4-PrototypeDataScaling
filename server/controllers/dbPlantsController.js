@@ -26,21 +26,43 @@ const deletePlants = async (req, res) => {
   }
 };
 
+const getPlantsWithDiscoverer = async (req, res) => {
+  const { id } = req.params; // Extract the UUID from the query parameters
+  const client = await pool.connect();
+  try {
+    const result = await client.query(
+      `SELECT * FROM plants JOIN discoverers ON plants.discoverer_id = 'discoverers.${id}'`
+    );
+    res.json(result.rows);
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  } finally {
+    client.release();
+  }
+};
+
 const createPlantsTable = async () => {
   const client = await pool.connect();
   try {
     await client.query(`
-           CREATE TABLE IF NOT EXISTS plants (
-                id UUID PRIMARY KEY,
-                common_name VARCHAR(100) NOT NULL,
-                scientific_name VARCHAR(100) NOT NULL,
-                year INTEGER, -- Change the data type based on the year type in your API
-                image_url VARCHAR(255), -- Adjust the length as needed
-                family VARCHAR(100), -- Adjust the length as needed
-                discoverer VARCHAR(100), -- Adjust the length as needed
-                bloom_season VARCHAR(50),
-                planting_season VARCHAR(50)
-                )`);
+      CREATE TABLE IF NOT EXISTS plants (
+        id UUID PRIMARY KEY,
+        common_name VARCHAR(100) NOT NULL,
+        scientific_name VARCHAR(100) NOT NULL,
+        year INTEGER, -- Change the data type based on the year type in your API
+        image_url VARCHAR(255), -- Adjust the length as needed
+        family VARCHAR(100), -- Adjust the length as needed
+        discoverer_id UUID,
+        bloom_season VARCHAR(50),
+        planting_season VARCHAR(50)
+      );
+
+      ALTER TABLE plants
+      ADD CONSTRAINT fk_discoverer
+      FOREIGN KEY (discoverer_id)
+      REFERENCES discoverers(id)
+      ON DELETE CASCADE
+    `);
     console.log('Table "plants" created successfully');
   } catch (error) {
     console.error("Error creating table:", error);
@@ -49,4 +71,9 @@ const createPlantsTable = async () => {
   }
 };
 
-module.exports = { getPlants, deletePlants, createPlantsTable };
+module.exports = {
+  getPlants,
+  deletePlants,
+  createPlantsTable,
+  getPlantsWithDiscoverer,
+};

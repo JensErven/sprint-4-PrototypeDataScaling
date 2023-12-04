@@ -26,5 +26,5 @@ const populateUsers = async () => {
   }
 };
 
-// Call the function to populate users
+// Call the function to populate users table
 module.exports = { populateUsers };

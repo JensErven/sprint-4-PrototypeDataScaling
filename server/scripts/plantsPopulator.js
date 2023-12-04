@@ -5,7 +5,7 @@ const axios = require("axios");
 const fetchRandomUserId = async () => {
   try {
     const result = await client.query(
-      "SELECT id FROM users ORDER BY RANDOM() LIMIT 1"
+      "SELECT id FROM discoverers ORDER BY RANDOM() LIMIT 1"
     );
     return result.rows[0].id;
   } catch (error) {
@@ -30,7 +30,7 @@ const populatePlants = async () => {
         const { common_name, scientific_name, year, image_url, family } = plant; // Extract relevant data from the API response
 
         const id = uuidv4(); // Generate a UUID for the plant
-        const discoverer = await fetchRandomUserId(); // Fetch a random user ID
+        const discoverer_id = await fetchRandomUserId(); // Fetch a random user ID
 
         // Generate a random bloom season using a subset of months (as numbers)
         const bloom_season = [
@@ -46,7 +46,7 @@ const populatePlants = async () => {
 
         // Insert the plant data into the database
         await client.query(
-          "INSERT INTO plants (id, common_name, scientific_name, year, image_url, family,discoverer, bloom_season, planting_season) VALUES ($1, $2, $3, $4, $5, $6, $7,$8,$9)",
+          "INSERT INTO plants (id, common_name, scientific_name, year, image_url, family,discoverer_id, bloom_season, planting_season) VALUES ($1, $2, $3, $4, $5, $6, $7,$8,$9)",
           [
             id,
             common_name,
@@ -54,7 +54,7 @@ const populatePlants = async () => {
             year,
             image_url,
             family,
-            discoverer,
+            discoverer_id,
             bloom_season,
             planting_season,
           ]

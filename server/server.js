@@ -2,10 +2,14 @@ const express = require("express");
 const apiRoutes = require("./routes/apiRoutes");
 const app = express();
 const cors = require("cors");
-const { createTable } = require("./controllers/dbController");
-const { populateUsers } = require("./scripts/userPopulator");
-const { populatePlants } = require("./scripts/plantPopulator");
+const { createUsersTable } = require("./controllers/dbUsersController");
+const { populateUsers } = require("./scripts/usersPopulator");
+const { populatePlants } = require("./scripts/plantsPopulator");
+const { populateDiscoverers } = require("./scripts/discoverersPopulator");
 const { createPlantsTable } = require("./controllers/dbPlantsController");
+const {
+  createDiscoverersTable,
+} = require("./controllers/dbDiscoverersController");
 
 app.use(express.json()); // Add this line to parse JSON bodies
 
@@ -16,10 +20,12 @@ const corsOptions = {
   methods: ["GET", "POST", "PUT", "DELETE"], // Specify the allowed HTTP methods
 };
 
-// createTable();
+// createUsersTable();
 // createPlantsTable();
 // populateUsers();
 // populatePlants();
+// createDiscoverersTable();
+// populateDiscoverers();
 
 app.use(cors(corsOptions));
 
