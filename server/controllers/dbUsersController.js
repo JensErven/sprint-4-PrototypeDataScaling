@@ -1,4 +1,6 @@
 const pool = require("../databasepg");
+const bcrypt = require("bcrypt");
+
 const { v4: uuidv4 } = require("uuid");
 
 // function to get all users from users table
@@ -33,9 +35,11 @@ const registerUser = async (req, res) => {
     }
 
     // If user doesn't exist, proceed with registration
+    const hashedPassword = await bcrypt.hash(password, 10);
+    // If user doesn't exist, proceed with registration
     await client.query(
       "INSERT INTO users (id, username, email, password) VALUES ($1, $2, $3, $4)",
-      [randomUUID, username, email, password]
+      [randomUUID, username, email, hashedPassword]
     );
 
     res.status(201).json({ message: "User registered successfully" });
@@ -74,13 +78,11 @@ const loginUser = async (req, res) => {
         .json({ error: "User with this email doesn't exist" });
     }
 
-    // Check if the password matches for the found user
-    const matchedUser = await client.query(
-      "SELECT * FROM users WHERE email = $1 AND password = $2",
-      [email, password]
-    );
+    const hashedPasswordFromDB = user.rows[0].password;
+    // Compare the provided password with the hashed password from the database
+    const passwordMatch = await bcrypt.compare(password, hashedPasswordFromDB);
 
-    if (matchedUser.rows.length === 0) {
+    if (!passwordMatch) {
       return res.status(401).json({ error: "Incorrect password" });
     }
 
