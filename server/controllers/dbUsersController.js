@@ -8,7 +8,7 @@ const getUsers = async (req, res) => {
   const client = await pool.connect();
 
   try {
-    const result = await client.query("SELECT * FROM users");
+    const result = await client.query("SELECT username, email,id FROM users");
     res.json(result.rows);
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });

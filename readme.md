@@ -20,6 +20,12 @@ Het moet mogelijk zijn om op te zoeken wanneer iets in bloei staat of het geplan
   * Intro
   * 'Client' VS 'Pool'
   * Conclusion
+* Pagination in API Endpoint
+  * Intro
+  * Key Reasons for Pagination
+  * Implementation
+  * Conclusion
+
 
 ## Technologies Used
 
@@ -90,3 +96,25 @@ Bij het werken met PostgreSQL-databases in Node.js is het essentieel om het vers
 ### Conclusion
 
 Voor de optimale prestaties en het schalen naar meerdere gebruikers heb ik gekozen voor de 'Pool'. Deze aanpak maakt het beheer van meerdere verbindingen efficiënt mogelijk en past goed bij scenario's met een hoog verkeer en gelijktijdige verzoeken. Dit minimaliseert het aantal actieve verbindingen en zorgt voor een efficiënter gebruik van de beschikbare databaseverbindingen, wat vooral gunstig is bij het schalen naar meerdere gebruikers
+
+## Pagination in API Endpoint
+
+### Intro
+Pagination is implemented in the API endpoint for plants to manage and retrieve large datasets more efficiently. This technique breaks down the dataset into smaller, manageable chunks or pages, allowing for better performance and reduced response times.
+
+
+### Key Reasons for Pagination
+1. Improved Performance: When dealing with a large dataset, fetching all records at once can strain server resources and increase response times. Pagination divides the data into smaller subsets, improving API response speed and overall performance.
+2. Reduced Bandwidth Usage: Transmitting a large volume of data in a single response can consume significant bandwidth. Pagination helps minimize this by sending smaller, more manageable portions of data.
+3. Enhanced User Experience: By presenting data in smaller increments, pagination provides a smoother browsing experience for users, especially when navigating through long lists of items.
+4. Optimized Resource Utilization: With pagination, clients can request specific pages of data, reducing unnecessary data transfer and optimizing resource utilization on both the client and server sides.
+### Implementation
+The API endpoint for plants supports pagination through a page query parameter. This parameter allows clients to request specific pages of plant data, controlling the number of items returned per request.
+
+Example endpoint usage:<br>
+
+GET /api/plants?page=2
+
+
+### Conclusion
+Implementing pagination in the API endpoint for plants is crucial for efficient data handling. It promotes better performance, reduces bandwidth usage, and enhances the overall user experience when dealing with large datasets.

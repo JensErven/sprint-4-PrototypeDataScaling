@@ -1,12 +1,40 @@
 // const client = require("../databasepg");
 const pool = require("../databasepg");
 
-// Example function to get all plants data from the plants table
 const getPlants = async (req, res) => {
   const client = await pool.connect();
   try {
-    const result = await client.query("SELECT * FROM plants");
-    res.json(result.rows);
+    const page = req.query.page || 1; // Get the requested page number from the query params
+    const itemsPerPage = 10; // Number of items to display per page
+    const offset = (page - 1) * itemsPerPage; // Calculate the offset based on the page number
+
+    // Fetch data with pagination
+    const result = await client.query(
+      `SELECT * FROM plants ORDER BY id LIMIT $1 OFFSET $2`,
+      [itemsPerPage, offset]
+    );
+
+    // Fetch total count of items
+    const totalCount = await client.query(`SELECT COUNT(*) FROM plants`);
+    const totalItems = parseInt(totalCount.rows[0].count);
+
+    // Calculate total pages
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+    // Create pagination metadata
+    const paginationInfo = {
+      currentPage: page,
+      totalPages: totalPages,
+      totalItems: totalItems,
+    };
+
+    // Prepare response object
+    const response = {
+      pagination: paginationInfo,
+      plants: result.rows,
+    };
+
+    res.json(response);
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   } finally {
