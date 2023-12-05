@@ -30,10 +30,15 @@ router.get("/users/:uuid", getUserByUuid);
 router.post("/login", loginUser);
 router.post("/register", registerUser);
 
-// Discoverers
+// Discoverers ENDPOINTS
+
+/** Purpose: get all the discoverers */
 router.get("/discoverers", getDiscoverers);
+/** Purpose: delete all the discoverers */
 router.delete("/discoverers", deleteDiscoverers);
+/** Purpose: get discoverer by id */
 router.get("/discoverers/:id", getDiscovererById);
+/** Purpose: delete discoverer by id */
 router.delete("/discoverers/:id", deleteDiscovererById);
 
 /**@plants */

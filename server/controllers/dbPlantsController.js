@@ -31,7 +31,8 @@ const getPlantsWithDiscoverer = async (req, res) => {
   const client = await pool.connect();
   try {
     const result = await client.query(
-      `SELECT * FROM plants JOIN discoverers ON plants.discoverer_id = 'discoverers.${id}'`
+      `SELECT * FROM plants JOIN discoverers ON plants.discoverer_id = discoverers.id WHERE discoverers.id = $1`,
+      [id]
     );
     res.json(result.rows);
   } catch (error) {
