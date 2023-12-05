@@ -59,6 +59,7 @@ const RegisterPage = () => {
       >
         <h2 className="text-2xl mb-4">Register</h2>
         <input
+          required
           type="text"
           placeholder="Username"
           value={username}
@@ -66,6 +67,7 @@ const RegisterPage = () => {
           className="w-full p-2 rounded border border-gray-300"
         />
         <input
+          required
           type="email"
           placeholder="Email"
           value={email}
@@ -74,6 +76,7 @@ const RegisterPage = () => {
         />
         <div className="relative">
           <input
+            required
             type={showPassword ? "text" : "password"}
             placeholder="Password"
             value={password}
