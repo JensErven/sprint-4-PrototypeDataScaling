@@ -13,6 +13,8 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import Welcome from "./pages/Welcome";
 import { useContext } from "react";
 import { AuthContext } from "./contexts/AuthContext"; // Update the path accordingly
+import { FactsContextProvider } from "./contexts/FactsContext";
+import PlantDetails from "./pages/PlantDetails";
 
 function App() {
   const { user } = useContext(AuthContext); // Access the user context variable
@@ -29,7 +31,17 @@ function App() {
           <Route
             exact
             path="/"
-            element={user ? <Home /> : <Navigate to="/login" />} // Show Home if user is logged in, otherwise redirect to Login
+            element={
+              user ? (
+                <>
+                  <FactsContextProvider>
+                    <Home />
+                  </FactsContextProvider>{" "}
+                </>
+              ) : (
+                <Navigate to="/login" />
+              )
+            } // Show Home if user is logged in, otherwise redirect to Login
           />
           <Route
             exact
@@ -45,6 +57,10 @@ function App() {
             exact
             path="/forgot-password"
             element={!user ? <ForgotPasswordPage /> : <Navigate to="/" />} // Show Forgot Password if user is not logged in, otherwise redirect to Home
+          />
+          <Route
+            path="/plantdetails/:id"
+            element={user ? <PlantDetails /> : <Navigate to="/login" />}
           />
         </Routes>
       </div>
