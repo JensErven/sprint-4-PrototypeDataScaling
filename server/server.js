@@ -16,11 +16,19 @@ app.use(express.json()); // Add this line to parse JSON bodies
 const allowedOrigins = [
   "http://localhost:3000",
   "https://sprint-4-prototype-data-scaling.vercel.app",
+  "https://sprint-4-prototype-data-scaling-jenserven.vercel.app/login",
+  "https://sprint-4-prototype-data-scaling-jenserven.vercel.app/register",
 ];
 
 const corsOptions = {
-  origin: allowedOrigins,
-  methods: ["GET", "POST", "PUT", "DELETE"], // Specify the allowed HTTP methods
+  origin: function (origin, callback) {
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  methods: ["GET", "POST"],
 };
 
 // createUsersTable();

@@ -1,9 +1,7 @@
 import axios from "axios";
 
 const isDevelopment = true;
-const baseUrl = isDevelopment
-  ? "http://localhost:5000"
-  : "https://demo-openai-tts-api-backend-v2.onrender.com";
+const baseUrl = isDevelopment ? "http://localhost:5000" : "";
 
 const PlantsService = {
   async getPlants(page = 1) {
