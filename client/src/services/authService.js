@@ -1,9 +1,9 @@
 import axios from "axios";
 
-const isDevelopment = true;
+const isDevelopment = false;
 const baseUrl = isDevelopment
   ? "http://localhost:5000"
-  : "https://demo-openai-tts-api-backend-v2.onrender.com";
+  : "https://expertlab-sprint4-backend.onrender.com";
 
 const AuthService = {
   async login(email, password) {

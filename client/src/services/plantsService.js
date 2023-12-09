@@ -1,7 +1,9 @@
 import axios from "axios";
 
-const isDevelopment = true;
-const baseUrl = isDevelopment ? "http://localhost:5000" : "";
+const isDevelopment = false;
+const baseUrl = isDevelopment
+  ? "http://localhost:5000"
+  : "https://expertlab-sprint4-backend.onrender.com";
 
 const PlantsService = {
   async getPlants(page = 1) {
