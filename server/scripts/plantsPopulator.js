@@ -1,8 +1,25 @@
 const { v4: uuidv4 } = require("uuid");
-const client = require("../databasepg");
+const pool = require("../databasepg");
 const axios = require("axios");
 
+const populateAmount = 10000;
+const months = [
+  "jan",
+  "feb",
+  "mar",
+  "apr",
+  "may",
+  "jun",
+  "jul",
+  "aug",
+  "sep",
+  "oct",
+  "nov",
+  "dec",
+];
+// get a random discoverers id to save with the plant
 const fetchRandomUserId = async () => {
+  const client = await pool.connect();
   try {
     const result = await client.query(
       "SELECT id FROM discoverers ORDER BY RANDOM() LIMIT 1"
@@ -11,70 +28,74 @@ const fetchRandomUserId = async () => {
   } catch (error) {
     console.error("Error fetching random user ID:", error);
     return null;
+  } finally {
+    client.release();
   }
 };
 
 const populatePlants = async () => {
+  const fetchedPlantIds = new Set();
   let pageUrl = "/api/v1/plants?page=1";
   let url = `https://trefle.io${pageUrl}&token=${process.env.TREFLE_API_KEY}`;
 
   let totalCount = 0;
-
+  const client = await pool.connect();
   try {
-    while (totalCount < 100) {
+    while (totalCount < populateAmount) {
+      // await new Promise((resolve) => setTimeout(resolve, 50));
       const response = await axios.get(url);
 
-      const plants = response.data.data; // Array of plants from the API response
+      const plants = response.data.data;
 
       for (const plant of plants) {
-        const { common_name, scientific_name, year, image_url, family } = plant; // Extract relevant data from the API response
+        const { id, common_name, scientific_name, year, image_url, family } =
+          plant;
 
-        const id = uuidv4(); // Generate a UUID for the plant
-        const discoverer_id = await fetchRandomUserId(); // Fetch a random user ID
+        if (fetchedPlantIds.has(id)) {
+          continue;
+        }
+        let plantName = common_name;
+        if (!common_name) {
+          plantName = scientific_name;
+        }
+        const discoverer_id = await fetchRandomUserId();
 
-        // Generate a random bloom season using a subset of months (as numbers)
-        const bloom_season = [
-          Math.floor(Math.random() * 12) + 1, // Random month between 1 and 12
-          Math.floor(Math.random() * 12) + 1, // Random month between 1 and 12
-        ].join(" - ");
+        // Generate random bloom and planting months
+        const randomBloomMonths = await generateRandomMonths();
+        const bloomMonthsToString = randomBloomMonths.join(",");
+        const getRandomMonth = () => {
+          const randomIndex = Math.floor(Math.random() * months.length);
+          return months[randomIndex];
+        };
+        const sowingMonthsToString = getRandomMonth();
 
-        // Generate a random planting season using a subset of months (as numbers)
-        const planting_season = [
-          Math.floor(Math.random() * 12) + 1, // Random month between 1 and 12
-          Math.floor(Math.random() * 12) + 1, // Random month between 1 and 12
-        ].join(" - ");
-
-        // Insert the plant data into the database
         await client.query(
-          "INSERT INTO plants (id, common_name, scientific_name, year, image_url, family,discoverer_id, bloom_season, planting_season) VALUES ($1, $2, $3, $4, $5, $6, $7,$8,$9)",
+          "INSERT INTO plants (id, common_name, scientific_name, year, image_url, family, discoverer_id, bloom_months, planting_months) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)",
           [
             id,
-            common_name,
+            plantName,
             scientific_name,
             year,
             image_url,
             family,
             discoverer_id,
-            bloom_season,
-            planting_season,
+            bloomMonthsToString,
+            sowingMonthsToString,
           ]
         );
-
+        fetchedPlantIds.add(id);
         totalCount++;
 
-        if (totalCount >= 100) {
-          // Reached the limit of 100 plants
-          console.log("Successfully populated 100 plants in the database");
+        if (totalCount >= populateAmount) {
           return;
         }
       }
 
-      // Check if there's a next page in the API response
       const nextPage = response.data.links.next;
       if (nextPage) {
-        pageUrl = nextPage; // Move to the next page for more plants
+        pageUrl = nextPage;
+        url = `https://trefle.io${pageUrl}&token=${process.env.TREFLE_API_KEY}`;
       } else {
-        // No more pages available
         console.log("No more plants available in the API");
         return;
       }
@@ -82,8 +103,176 @@ const populatePlants = async () => {
   } catch (error) {
     console.error("Error:", error);
   } finally {
-    // Do not close the database connection here to allow multiple queries
+    console.log(
+      `Successfully populated ${populateAmount} plants in the database`
+    );
+    client.release();
   }
 };
+
+// const populateBloomAndSowMonths = async () => {
+//   try {
+//     const allPlants = await client.query("SELECT * FROM plants");
+
+//     for (const plant of allPlants.rows) {
+//       // const bloomMonthsToString = "jun, jul, aug, sep";
+//       // const sowingMonthsToString = "oct, nov, dec, jan";
+
+//       const randomBloomMonths = await generateRandomMonths();
+//       const bloomMonthsToString = randomBloomMonths.join(",");
+//       const randomSowingMonths = await generateRandomSowingMonths(
+//         randomBloomMonths
+//       );
+//       const sowingMonthsToString = randomSowingMonths.join(",");
+//       await client.query(
+//         "UPDATE plants SET bloom_months = $1, planting_months = $2 WHERE id = $3",
+//         [bloomMonthsToString, sowingMonthsToString, plant.id]
+//       );
+//     }
+
+//     console.log(
+//       "Successfully populated bloom_months and planting_months for all plants"
+//     );
+//   } catch (error) {
+//     console.error("Error:", error);
+//   }
+// };
+
+const generateRandomMonths = async () => {
+  const randomAmount = Math.floor(Math.random() * 6) + 1;
+  const startIdx = Math.floor(Math.random() * (months.length - randomAmount));
+  return months.slice(startIdx, startIdx + randomAmount);
+};
+
+const generateRandomSowingMonths = async (bloomMonths) => {
+  let randomSowingMonths = await generateRandomMonths(); // Generate random months initially
+
+  // Check for overlap with bloom months
+  while (randomSowingMonths.some((month) => bloomMonths.includes(month))) {
+    randomSowingMonths = await generateRandomMonths();
+  }
+
+  return randomSowingMonths;
+};
+// get the blooming months from the treffle api
+// const fetchBloomAndSowingMonths = async (slug) => {
+//   try {
+//     const response = await axios.get(
+//       `https://trefle.io/api/v1/plants/${slug}?token=${process.env.TREFLE_API_KEY}`
+//     );
+//     const bloomMonths = response.data.data.main_species.growth.bloom_months;
+//     console.log("Bloom Months:", bloomMonths);
+
+//     if (bloomMonths === null) {
+//       const randomBloomMonths = generateRandomMonths();
+//       const randomSowingMonths = generateRandomSowingMonths(randomBloomMonths);
+
+//       console.log("Random Bloom Months:", randomBloomMonths);
+//       console.log("Random Sowing Months:", randomSowingMonths);
+//       return {
+//         bloomMonths: randomBloomMonths,
+//         sowingMonths: randomSowingMonths,
+//       };
+//     } else {
+//       const randomSowingMonths = generateRandomSowingMonths(bloomMonths);
+
+//       return { bloomMonths, sowingMonths: randomSowingMonths };
+//     }
+//   } catch (error) {
+//     console.error("Error fetching bloom_months:", error);
+//     return null;
+//   }
+// };
+
+// const populatePlants = async () => {
+//   const fetchedPlantIds = new Set();
+
+//   try {
+//     let pageUrl = "/api/v1/plants?page=1";
+//     let url = `https://trefle.io${pageUrl}&token=${process.env.TREFLE_API_KEY}`;
+
+//     let totalCount = 0;
+
+//     while (totalCount < populateAmount) {
+//       try {
+//         const response = await axios.get(url);
+
+//         const plants = response.data.data;
+
+//         for (const plant of plants) {
+//           const {
+//             id,
+//             slug,
+//             common_name,
+//             scientific_name,
+//             year,
+//             image_url,
+//             family,
+//           } = plant;
+
+//           const discoverer_id = await fetchRandomUserId();
+//           const { bloomMonths, sowingMonths } = await fetchBloomAndSowingMonths(
+//             slug
+//           );
+//           const bloomMonthsToString = bloomMonths.join(",");
+//           const sowingMonthsToString = sowingMonths.join(",");
+
+//           if (fetchedPlantIds.has(id)) {
+//             continue;
+//           }
+//           let plantName = common_name;
+//           if (!common_name) {
+//             plantName = scientific_name;
+//           }
+
+//           await client.query(
+//             "INSERT INTO plants (id, common_name, scientific_name, year, image_url, family, discoverer_id, bloom_months, planting_months) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)",
+//             [
+//               id,
+//               plantName,
+//               scientific_name,
+//               year,
+//               image_url,
+//               family,
+//               discoverer_id,
+//               bloomMonthsToString,
+//               sowingMonthsToString,
+//             ]
+//           );
+
+//           fetchedPlantIds.add(id);
+//           totalCount++;
+
+//           if (totalCount >= populateAmount) {
+//             console.log(
+//               `Successfully populated ${populateAmount} plants in the database`
+//             );
+//             return;
+//           }
+//         }
+
+//         const nextPage = response.data.links.next;
+//         if (nextPage) {
+//           pageUrl = nextPage;
+//           url = `https://trefle.io${pageUrl}&token=${process.env.TREFLE_API_KEY}`;
+//         } else {
+//           console.log("No more plants available in the API");
+//           return;
+//         }
+//       } catch (error) {
+//         if (error.response && error.response.status === 429) {
+//           console.error("Rate limited, waiting before retrying...");
+//           await new Promise((resolve) => setTimeout(resolve, 5000));
+//           continue;
+//         } else {
+//           console.error("Error:", error);
+//           break;
+//         }
+//       }
+//     }
+//   } catch (error) {
+//     console.error("Error:", error);
+//   }
+// };
 // Call the function to populate plants table
 module.exports = { populatePlants };

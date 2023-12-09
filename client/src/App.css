@@ -7,6 +7,12 @@
   pointer-events: none;
 }
 
+@font-face {
+  font-family: 'abraham.outline-demo-outline';
+  src: local('abraham.outline-demo-outline'), url('../src/assets/fonts/abraham.outline-demo-outline.otf') format('opentype'); /* Update the file name and format */
+  /* You can also include different formats (woff, woff2, etc.) for better browser support */
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
@@ -46,3 +52,16 @@ h1{
 p{
   color: #fefffe;
 }
+
+p .flora-fauna-text{
+  font-family: 'abraham.outline-demo-outline', sans-serif;
+
+}
+
+input, input:focus{
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 600;
+  color: rgb(168 162 158 / var(--tw-text-opacity));
+  font-size: 1.15em;
+}
+

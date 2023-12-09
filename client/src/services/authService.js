@@ -1,17 +1,21 @@
 import axios from "axios";
 
-const baseUrl = "http://localhost:5000/";
+const isDevelopment = true;
+const baseUrl = isDevelopment
+  ? "http://localhost:5000"
+  : "https://demo-openai-tts-api-backend-v2.onrender.com";
+
 const AuthService = {
   async login(email, password) {
     try {
-      const response = await axios.post(`${baseUrl}api/login`, {
+      const response = await axios.post(`${baseUrl}/api/login`, {
         email,
         password,
       });
 
       return response.data;
     } catch (error) {
-      console.error("Login error:", error);
+      console.error("Registration error:", error.response.data.error);
       throw error;
     }
   },
@@ -19,7 +23,7 @@ const AuthService = {
   async register(username, email, password) {
     console.log("test register");
     try {
-      const response = await axios.post(`${baseUrl}api/register`, {
+      const response = await axios.post(`${baseUrl}/api/register`, {
         username,
         email,
         password,
@@ -27,7 +31,7 @@ const AuthService = {
 
       return response.data;
     } catch (error) {
-      console.error("Registration error:", error);
+      console.error("Registration error:", error.response.data.error); // Accessing the specific error message from the response
       throw error;
     }
   },

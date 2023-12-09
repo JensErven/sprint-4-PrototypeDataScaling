@@ -14,6 +14,7 @@ import Welcome from "./pages/Welcome";
 import { useContext } from "react";
 import { AuthContext } from "./contexts/AuthContext"; // Update the path accordingly
 import { FactsContextProvider } from "./contexts/FactsContext";
+import { PlantsContextProvider } from "./contexts/PlantsContext";
 import PlantDetails from "./pages/PlantDetails";
 
 function App() {
@@ -34,9 +35,11 @@ function App() {
             element={
               user ? (
                 <>
-                  <FactsContextProvider>
-                    <Home />
-                  </FactsContextProvider>{" "}
+                  <PlantsContextProvider>
+                    <FactsContextProvider>
+                      <Home />
+                    </FactsContextProvider>{" "}
+                  </PlantsContextProvider>
                 </>
               ) : (
                 <Navigate to="/login" />

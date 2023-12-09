@@ -41,8 +41,13 @@ const registerUser = async (req, res) => {
       "INSERT INTO users (id, username, email, password) VALUES ($1, $2, $3, $4)",
       [randomUUID, username, email, hashedPassword]
     );
-
-    res.status(201).json({ message: "User registered successfully" });
+    const userData = {
+      id: randomUUID,
+      username: username,
+    };
+    res
+      .status(201)
+      .json({ message: "User registered successfully", user: userData });
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   } finally {
@@ -87,7 +92,12 @@ const loginUser = async (req, res) => {
     }
 
     // User found, authentication successful
-    res.status(200).json({ message: "Login successful" });
+    const userData = {
+      id: user.rows[0].id,
+      username: user.rows[0].username,
+    };
+    // User found, authentication successful
+    res.status(200).json({ message: "Login successful", user: userData });
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   } finally {

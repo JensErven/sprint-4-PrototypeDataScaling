@@ -11,6 +11,8 @@ const {
   deletePlants,
   getPlants,
   getPlantsWithDiscoverer,
+  searchPlantsByCommonName,
+  getPlantById,
 } = require("../controllers/dbPlantsController");
 const {
   getDiscoverers,
@@ -45,5 +47,7 @@ router.delete("/discoverers/:id", deleteDiscovererById);
 router.get("/plants", getPlants);
 router.delete("/plants", deletePlants);
 router.get("/plants/discoverer/:id", getPlantsWithDiscoverer);
+router.get("/plants/search", searchPlantsByCommonName);
+router.get("/plants/plant/:id", getPlantById);
 
 module.exports = router;

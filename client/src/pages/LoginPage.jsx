@@ -16,6 +16,7 @@ const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
 
   const navigate = useNavigate();
 
@@ -25,8 +26,9 @@ const LoginPage = () => {
       await login(email, password);
       // Redirect to desired page upon successful login
     } catch (error) {
-      console.error("Login failed: ", error);
-      // Handle login failure, display error message, etc.
+      console.error("Login failed: ", error.response.data.error); // Display the specific error message to the user
+      // Handle displaying the error message in your UI (e.g., set an error state to render an error message)
+      setError(`Login failed: ${error.response.data.error}`); // You can customize the error message
     }
   };
   const handleGoToRegister = () => {
@@ -38,7 +40,7 @@ const LoginPage = () => {
   };
   return (
     <div
-      className="h-screen flex justify-center items-center relative"
+      className="h-screen flex justify-center items-center relative flex-col"
       style={{ backgroundColor: "#0A393C" }}
     >
       <div className="absolute top-0 h-screen -z-1">
@@ -94,6 +96,11 @@ const LoginPage = () => {
           </p>
         </div>
       </form>
+      {error !== "" && (
+        <div className="   bg-red-500 text-white px-6 py-3 rounded-md shadow-lg z-50 w-4/5 lg:w-1/4 md:w-1/2 mt-4">
+          <p className="text-lg">{error}</p>
+        </div>
+      )}
     </div>
   );
 };

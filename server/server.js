@@ -13,7 +13,10 @@ const {
 
 app.use(express.json()); // Add this line to parse JSON bodies
 
-const allowedOrigins = ["http://localhost:3000"];
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://sprint-4-prototype-data-scaling.vercel.app",
+];
 
 const corsOptions = {
   origin: allowedOrigins,

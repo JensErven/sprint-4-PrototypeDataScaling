@@ -17,17 +17,17 @@ const AuthContextProvider = (props) => {
   const login = async (email, password) => {
     const loggedInUser = await AuthService.login(email, password);
     if (loggedInUser) {
-      setUser(loggedInUser);
+      setUser(loggedInUser.user);
       // Store user data in local storage
-      localStorage.setItem("user", JSON.stringify(loggedInUser));
+      localStorage.setItem("user", JSON.stringify(loggedInUser.user));
     }
   };
 
   const register = async (username, email, password) => {
     const newUser = await AuthService.register(username, email, password);
-    setUser(newUser);
+    setUser(newUser.user);
     // Store user data in local storage after registration if needed
-    localStorage.setItem("user", JSON.stringify(newUser));
+    localStorage.setItem("user", JSON.stringify(newUser.user));
   };
 
   const logout = async () => {
